@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 
 class DemiCircleGaugePainter extends CustomPainter {
@@ -12,7 +10,6 @@ class DemiCircleGaugePainter extends CustomPainter {
     required this.thresholdColor,
     required this.paintingStyle,
     required this.strokeWidth});
-  num degToRad(num deg) => deg * (pi / 180.0);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -20,32 +17,26 @@ class DemiCircleGaugePainter extends CustomPainter {
       ..color = this.gaugeColor
       ..style = this.paintingStyle
       ..strokeWidth = this.strokeWidth;
+    Paint thresholdPaint = Paint()
+      ..color = this.thresholdColor
+      ..style = this.paintingStyle
+      ..strokeWidth = this.strokeWidth;
 
     final Path demiCirclePath = Path()
       ..moveTo(0, size.height)
-      ..arcToPoint(Offset(size.width, size.height), radius: Radius.circular(1))
-      ..close();
+      ..arcToPoint(Offset(size.width, size.height), radius: Radius.circular(1));
     canvas.drawPath(demiCirclePath, gaugePaint);
 
-    final double gaugeMarkings = size.width - (size.width * 0.97);
+    final double gaugeMarkings = size.width - (size.width * 0.925);
 
-    final Path firstMarkingPath = Path()
-        ..moveTo(0, size.height)
-        ..lineTo(gaugeMarkings, size.height)
-        ..close();
-    canvas.drawPath(firstMarkingPath, gaugePaint);
+    canvas.drawLine(Offset(0, size.height),
+        Offset(gaugeMarkings, size.height), gaugePaint);
 
-    final Path secondMarkingPath = Path()
-      ..moveTo(size.width / 2, 0)
-      ..lineTo(size.width / 2, gaugeMarkings)
-      ..close();
-    canvas.drawPath(secondMarkingPath, gaugePaint);
+    canvas.drawLine(Offset(size.width / 2, 0),
+        Offset(size.width / 2, gaugeMarkings), gaugePaint);
 
-    final Path thirdMarkingPath = Path()
-      ..moveTo(size.width - gaugeMarkings, size.height)
-      ..lineTo(size.width, size.height)
-      ..close();
-    canvas.drawPath(thirdMarkingPath, gaugePaint);
+    canvas.drawLine(Offset(size.width - gaugeMarkings, size.height),
+        Offset(size.width, size.height), thresholdPaint);
   }
 
   @override
