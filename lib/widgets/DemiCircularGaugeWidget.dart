@@ -1,9 +1,7 @@
 import 'dart:async';
-import 'dart:math';
-
 import 'package:eccm_widget/utils/DemiCircleGaugePainter.dart';
 import 'package:flutter/material.dart';
-import 'package:matrix4_transform/matrix4_transform.dart';
+import 'package:vector_math/vector_math.dart' as vector_math;
 
 class DemiCircularGaugeWidget extends StatefulWidget {
   final double width;
@@ -28,15 +26,21 @@ class _DemiCircularGaugeWidgetState extends State<DemiCircularGaugeWidget> {
 
   late StreamSubscription<num> _valueStreamSubscription;
   num? value;
+  bool valueAboveThreshold = false;
 
   @override
   void initState() {
     super.initState();
     this._valueStreamSubscription = this.widget.valueUpdateStream.listen(
             (num newValue) {
-              setState(() {
-                this.value = newValue;
-              });
+              if (newValue != this.value) {
+                setState(() {
+                  this.value = newValue;
+                  this.valueAboveThreshold = (this.value == null
+                      ? false
+                      : (this.value! >= this.widget.thresholdValue));
+                });
+              }
     });
   }
 
@@ -44,6 +48,19 @@ class _DemiCircularGaugeWidgetState extends State<DemiCircularGaugeWidget> {
   void dispose() {
     this._valueStreamSubscription.cancel();
     super.dispose();
+  }
+
+  double gaugeAngleValue(num? gaugeValue) {
+    if (gaugeValue == null) {
+      return 0;
+    }
+    if(gaugeValue > this.widget.maxValue) {
+      return 180;
+    }
+    else if (gaugeValue < this.widget.minValue) {
+      return 0;
+    }
+    return ((this.value?.toDouble() ?? 0) / this.widget.maxValue) * 180;
   }
 
   @override
@@ -65,6 +82,24 @@ class _DemiCircularGaugeWidgetState extends State<DemiCircularGaugeWidget> {
           ),
           Align(
             alignment: Alignment.bottomCenter,
+            child: Container(
+              //duration: Duration(milliseconds: 500),
+              width: this.widget.width * 0.48,
+              height: this.widget.width * 0.02,
+              child: Transform.translate(
+                offset: Offset(-this.widget.width * 0.48 / 2, 0),
+                child: Transform.rotate(
+                  origin: Offset(((this.widget.width * 0.48)/2), 0), //this.widget.width * 0.48, this.widget.width * 0.02 / 2
+                  angle: vector_math.radians(this.gaugeAngleValue(this.value)),
+                  child: Container(
+                    color: this.valueAboveThreshold ? Colors.red : Colors.green,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Align(
+            alignment: Alignment.bottomCenter,
             child: Transform.translate(
               offset: Offset(0, this.widget.height * 0.17),
               child: Container(
@@ -73,36 +108,31 @@ class _DemiCircularGaugeWidgetState extends State<DemiCircularGaugeWidget> {
                 decoration: BoxDecoration(
                   color: Colors.black,
                   border: Border.all(
-                    color: Colors.green,
+                    color: this.valueAboveThreshold ? Colors.red : Colors.green,
                     width: this.widget.width * 0.01
                   )
                 ),
                 child: Center(
                   child: Text(
-                      this.value?.toString() ?? 'XX',
+                      (){
+                        if (this.value == null) {
+                          return 'XX';
+                        }
+                        if(this.value!.toString().contains('.')) {
+                          return this.value!.toStringAsFixed(1);
+                        }
+                        return this.value!.toString();
+                      }(),
                       style: TextStyle(
                           fontSize: this.widget.width * 0.12,
-                          color: this.value != null ? Colors.white : Colors.red
+                          color: this.value != null ? (!this.valueAboveThreshold
+                              ? Colors.green : Colors.red) : Colors.red
                       )
                   ),
                 ),
               ),
             ),
           ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              //offset: Offset((this.widget.width * 0.465)/2, 0),
-              child: AnimatedContainer(
-                transform: Matrix4Transform().rotateDegrees(170).matrix4,
-                //transform: Matrix4.rotationZ(vector_math.radians(240)),
-                duration: Duration(milliseconds: 500),
-                color: Colors.green,
-                width: this.widget.width * 0.48,
-                height: this.widget.width * 0.02,
-              ),
-            ),
-          )
         ],
       ),
     );
