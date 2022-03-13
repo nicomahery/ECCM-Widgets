@@ -6,13 +6,16 @@ class BigArcGaugePainter extends CustomPainter {
   final Color thresholdColor;
   final PaintingStyle paintingStyle;
   final double strokeWidth;
+  final double thresholdPercentage;
   static double START_ANGLE = 140;
   static double SWEEP_ANGLE = 220;
 
   BigArcGaugePainter({required this.gaugeColor,
     required this.thresholdColor,
     required this.paintingStyle,
-    required this.strokeWidth});
+    required this.strokeWidth,
+    required this.thresholdPercentage
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -26,9 +29,12 @@ class BigArcGaugePainter extends CustomPainter {
       ..style = this.paintingStyle
       ..strokeWidth = this.strokeWidth;
 
+    final circleRect = Rect.fromCenter(
+        center: Offset(size.width / 2, size.height - heightOffset),
+        width: size.width, height: size.width);
+
     final Path demiCirclePath = Path()
-      ..addArc(Rect.fromCenter(center: Offset(size.width / 2, size.height - heightOffset),
-          width: size.width, height: size.width), radians(140), radians(220));
+      ..addArc(circleRect, radians(140), radians(220));
       //..arcToPoint(Offset(size.width, size.height), radius: Radius.elliptical(1, 1.5));
     canvas.drawPath(demiCirclePath, gaugePaint);
 
@@ -42,6 +48,8 @@ class BigArcGaugePainter extends CustomPainter {
 
     canvas.drawLine(Offset(size.width - gaugeMarkings, size.height - heightOffset),
         Offset(size.width, size.height - heightOffset), thresholdPaint);
+    double thresholdStartAngle = START_ANGLE + (SWEEP_ANGLE * this.thresholdPercentage);
+    canvas.drawArc(circleRect, radians(thresholdStartAngle), radians(360 - thresholdStartAngle), false, thresholdPaint);
   }
 
   @override

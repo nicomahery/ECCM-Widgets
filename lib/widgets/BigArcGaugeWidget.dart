@@ -78,7 +78,8 @@ class _BigArcGaugeWidgetState extends State<BigArcGaugeWidget> {
                 gaugeColor: Colors.white,
                 strokeWidth: this.widget.width * 0.018,
                 paintingStyle: PaintingStyle.stroke,
-                thresholdColor: Colors.red
+                thresholdColor: Colors.red,
+                thresholdPercentage: (this.widget.thresholdValue) / this.widget.maxValue
             ),
           ),
           Align(
@@ -105,10 +106,10 @@ class _BigArcGaugeWidgetState extends State<BigArcGaugeWidget> {
           Align(
             alignment: Alignment.bottomRight,
             child: Transform.translate(
-              offset: Offset(0, this.widget.height * 0.25),
+              offset: Offset(0, this.widget.height * 0.35),
               child: Container(
-                width: this.widget.width * 0.35,
-                height: this.widget.height * 0.4,
+                width: this.widget.width * 0.4625,
+                height: this.widget.height * 0.45,
                 decoration: BoxDecoration(
                   color: Colors.transparent,
                 ),
@@ -124,7 +125,7 @@ class _BigArcGaugeWidgetState extends State<BigArcGaugeWidget> {
                         return this.value!.toString();
                       }(),
                       style: TextStyle(
-                          fontSize: this.widget.width * 0.2,
+                          fontSize: this.widget.width * 0.20,
                           color: this.value != null ? (!this.valueAboveThreshold
                               ? Colors.green : Colors.red) : Colors.red
                       )

@@ -74,10 +74,11 @@ class _DemiCircularGaugeWidgetState extends State<DemiCircularGaugeWidget> {
           CustomPaint(
             size: Size(this.widget.width, this.widget.height),
             painter: DemiCircleGaugePainter(
-                gaugeColor: Colors.white,
-                strokeWidth: this.widget.width * 0.018,
-                paintingStyle: PaintingStyle.stroke,
-                thresholdColor: Colors.red
+              gaugeColor: Colors.white,
+              strokeWidth: this.widget.width * 0.018,
+              paintingStyle: PaintingStyle.stroke,
+              thresholdColor: Colors.red,
+              thresholdPercentage: this.widget.thresholdValue / this.widget.maxValue
             ),
           ),
           Align(

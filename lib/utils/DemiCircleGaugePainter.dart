@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:vector_math/vector_math.dart';
 
 class DemiCircleGaugePainter extends CustomPainter {
   final Color gaugeColor;
   final Color thresholdColor;
   final PaintingStyle paintingStyle;
   final double strokeWidth;
+  final double thresholdPercentage;
+  static double START_ANGLE = 0;
+  static double SWEEP_ANGLE = 180;
 
   DemiCircleGaugePainter({required this.gaugeColor,
     required this.thresholdColor,
     required this.paintingStyle,
-    required this.strokeWidth});
+    required this.strokeWidth,
+    required this.thresholdPercentage
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -37,6 +43,13 @@ class DemiCircleGaugePainter extends CustomPainter {
 
     canvas.drawLine(Offset(size.width - gaugeMarkings, size.height),
         Offset(size.width, size.height), thresholdPaint);
+    final circleRect = Rect.fromCenter(
+        center: Offset(size.width / 2, size.height),
+        width: size.width, height: size.width);
+    double thresholdStartAngle = START_ANGLE
+        + (SWEEP_ANGLE * this.thresholdPercentage);
+    canvas.drawArc(circleRect, radians(thresholdStartAngle + SWEEP_ANGLE),
+        radians(SWEEP_ANGLE - thresholdStartAngle), false, thresholdPaint);
   }
 
   @override
