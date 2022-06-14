@@ -1,9 +1,10 @@
 import 'dart:async';
-import 'package:eccm_widget/utils/DemiCircleGaugePainter.dart';
 import 'package:flutter/material.dart';
 import 'package:vector_math/vector_math.dart' as vector_math;
 
-class DemiCircularGaugeWidget extends StatefulWidget {
+import 'package:eccm_widget/utils/big_arc_gauge_painter.dart';
+
+class BigArcGaugeWidget extends StatefulWidget {
   final double width;
   late double height;
   final Stream<num> valueUpdateStream;
@@ -11,7 +12,7 @@ class DemiCircularGaugeWidget extends StatefulWidget {
   final num maxValue;
   final num thresholdValue;
 
-  DemiCircularGaugeWidget({required this.width,
+  BigArcGaugeWidget({required this.width,
     required this.valueUpdateStream,
     required this.maxValue, required this.minValue,
     required this.thresholdValue}) {
@@ -19,10 +20,10 @@ class DemiCircularGaugeWidget extends StatefulWidget {
   }
 
   @override
-  State<DemiCircularGaugeWidget> createState() => _DemiCircularGaugeWidgetState();
+  State<BigArcGaugeWidget> createState() => _BigArcGaugeWidgetState();
 }
 
-class _DemiCircularGaugeWidgetState extends State<DemiCircularGaugeWidget> {
+class _BigArcGaugeWidgetState extends State<BigArcGaugeWidget> {
 
   late StreamSubscription<num> _valueStreamSubscription;
   num? value;
@@ -60,7 +61,7 @@ class _DemiCircularGaugeWidgetState extends State<DemiCircularGaugeWidget> {
     else if (gaugeValue < this.widget.minValue) {
       return 0;
     }
-    return ((this.value?.toDouble() ?? 0) / this.widget.maxValue) * 180;
+    return ((((this.value?.toDouble() ?? 0) / this.widget.maxValue) * BigArcGaugePainter.SWEEP_ANGLE) - ((BigArcGaugePainter.SWEEP_ANGLE - BigArcGaugePainter.START_ANGLE) / 2));
   }
 
   @override
@@ -73,45 +74,44 @@ class _DemiCircularGaugeWidgetState extends State<DemiCircularGaugeWidget> {
         children: [
           CustomPaint(
             size: Size(this.widget.width, this.widget.height),
-            painter: DemiCircleGaugePainter(
-              gaugeColor: Colors.white,
-              strokeWidth: this.widget.width * 0.018,
-              paintingStyle: PaintingStyle.stroke,
-              thresholdColor: Colors.red,
-              thresholdPercentage: this.widget.thresholdValue / this.widget.maxValue
+            painter: BigArcGaugePainter(
+                gaugeColor: Colors.white,
+                strokeWidth: this.widget.width * 0.018,
+                paintingStyle: PaintingStyle.stroke,
+                thresholdColor: Colors.red,
+                thresholdPercentage: (this.widget.thresholdValue) / this.widget.maxValue
             ),
           ),
           Align(
             alignment: Alignment.bottomCenter,
-            child: Container(
-              //duration: Duration(milliseconds: 500),
-              width: this.widget.width * 0.48,
-              height: this.widget.width * 0.02,
-              child: Transform.translate(
-                offset: Offset(-this.widget.width * 0.48 / 2, 0),
-                child: Transform.rotate(
-                  origin: Offset(((this.widget.width * 0.48)/2), 0), //this.widget.width * 0.48, this.widget.width * 0.02 / 2
-                  angle: vector_math.radians(this.gaugeAngleValue(this.value)),
-                  child: Container(
-                    color: this.valueAboveThreshold ? Colors.red : Colors.green,
+            child: Transform.translate(
+              offset: Offset(0, -this.widget.height * 0.3),
+              child: Container(
+                //duration: Duration(milliseconds: 500),
+                width: this.widget.width * 0.48,
+                height: this.widget.width * 0.02,
+                child: Transform.translate(
+                  offset: Offset(-this.widget.width * 0.48 / 2, 0),
+                  child: Transform.rotate(
+                    origin: Offset(((this.widget.width * 0.48)/2), 0), //this.widget.width * 0.48, this.widget.width * 0.02 / 2
+                    angle: vector_math.radians(this.gaugeAngleValue(this.value)),
+                    child: Container(
+                      color: this.valueAboveThreshold ? Colors.red : Colors.green,
+                    ),
                   ),
                 ),
               ),
             ),
           ),
           Align(
-            alignment: Alignment.bottomCenter,
+            alignment: Alignment.bottomRight,
             child: Transform.translate(
-              offset: Offset(0, this.widget.height * 0.17),
+              offset: Offset(0, this.widget.height * 0.35),
               child: Container(
-                width: this.widget.width * 0.35,
-                height: this.widget.height * 0.35,
+                width: this.widget.width * 0.4625,
+                height: this.widget.height * 0.45,
                 decoration: BoxDecoration(
-                  color: Colors.black,
-                  border: Border.all(
-                    color: this.valueAboveThreshold ? Colors.red : Colors.green,
-                    width: this.widget.width * 0.01
-                  )
+                  color: Colors.transparent,
                 ),
                 child: Center(
                   child: Text(
@@ -125,7 +125,7 @@ class _DemiCircularGaugeWidgetState extends State<DemiCircularGaugeWidget> {
                         return this.value!.toString();
                       }(),
                       style: TextStyle(
-                          fontSize: this.widget.width * 0.12,
+                          fontSize: this.widget.width * 0.20,
                           color: this.value != null ? (!this.valueAboveThreshold
                               ? Colors.green : Colors.red) : Colors.red
                       )

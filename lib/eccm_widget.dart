@@ -1,4 +1,4 @@
 library eccm_widget;
 
-export 'widgets/DemiCircularGaugeWidget.dart';
-export 'widgets/BigArcGaugeWidget.dart';
+export 'package:eccm_widget/widgets/demi_circular_gauge_widget.dart';
+export 'package:eccm_widget/widgets/big_arc_gauge_widget.dart';
